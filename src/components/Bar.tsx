@@ -5,6 +5,7 @@ import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { useGLTF, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
+// Preload the model and its associated files
 useGLTF.preload('/models/xybar2.gltf')
 
 function Model({ positionX = 0, positionZ = 0 }) {
@@ -13,34 +14,12 @@ function Model({ positionX = 0, positionZ = 0 }) {
 
   useEffect(() => {
     if (modelRef.current) {
-      // Basic positioning and scaling
       modelRef.current.scale.set(5, 5, 5)
       modelRef.current.rotation.y = THREE.MathUtils.degToRad(-45)
       modelRef.current.rotation.x = THREE.MathUtils.degToRad(10)
       modelRef.current.position.set(positionX, -2, positionZ)
-
-      // Fix texture rendering issues
-      scene.traverse((child) => {
-        if (child.isMesh) {
-          // Enable double-sided rendering
-          child.material.side = THREE.DoubleSide
-          
-          // Ensure proper texture rendering
-          if (child.material.map) {
-            child.material.map.flipY = false
-            child.material.map.encoding = THREE.sRGBEncoding
-            child.material.needsUpdate = true
-          }
-          
-          // Enable transparency if needed
-          if (child.material.transparent) {
-            child.material.alphaTest = 0.5
-            child.material.needsUpdate = true
-          }
-        }
-      })
     }
-  }, [positionX, positionZ, scene])
+  }, [positionX, positionZ])
 
   return <primitive object={scene} ref={modelRef} />
 }
@@ -101,14 +80,7 @@ export default function ObjectViewer() {
 
   return (
     <div style={{ width: '100%', height: '900px', position: 'relative' }}>
-      <Canvas
-        shadows
-        gl={{ 
-          antialias: true,
-          alpha: true,
-          physicallyCorrectLights: true,
-        }}
-      >
+      <Canvas shadows>
         <CameraController />
         <Lights intensity={lightIntensity} />
         <VisibleLights intensity={lightIntensity} />
