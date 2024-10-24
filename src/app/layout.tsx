@@ -1,3 +1,24 @@
+// 'use client'
+
+// import './globals.css'
+// import Navbar from '@/components/Navbar'
+// import '@/config/amplify-config'
+
+// export default function RootLayout({
+//   children,
+// }: {
+//   children: React.ReactNode
+// }) {
+//   return (
+//     <html lang="en">
+//       <body>
+//         <Navbar />
+//         {children}
+//       </body>
+//     </html>
+//   )
+// }
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -35,3 +56,4 @@ export default function RootLayout({
     </html>
   );
 }
+
