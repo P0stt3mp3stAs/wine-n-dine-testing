@@ -2,13 +2,21 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Auth } from 'aws-amplify'
+import { Amplify } from 'aws-amplify'
+import { signOut, getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth'
+import type { AuthUser, FetchUserAttributesOutput } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import { ChevronDown, LogOut } from 'lucide-react'
 
+// Define interface for user with attributes
+interface UserWithAttributes {
+  user: AuthUser;
+  attributes: FetchUserAttributesOutput;
+}
+
 const Navbar = () => {
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<UserWithAttributes | null>(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
   // Check authentication status on component mount
@@ -19,9 +27,21 @@ const Navbar = () => {
   // Function to check current authenticated user
   const checkUser = async () => {
     try {
-      const currentUser = await Auth.currentAuthenticatedUser()
-      setUser(currentUser)
+      const currentUser = await getCurrentUser()
+      const userAttributes = await fetchUserAttributes()
+      
+      // Only set the user if we have the required attributes
+      if (userAttributes.email) {
+        setUser({
+          user: currentUser,
+          attributes: userAttributes
+        })
+      } else {
+        console.error('User email not found in attributes')
+        setUser(null)
+      }
     } catch (err) {
+      console.error('Error fetching user:', err)
       setUser(null)
     }
   }
@@ -29,7 +49,7 @@ const Navbar = () => {
   // Handle sign out
   const handleSignOut = async () => {
     try {
-      await Auth.signOut()
+      await signOut()
       setUser(null)
       setDropdownOpen(false)
       router.push('/')
@@ -59,7 +79,7 @@ const Navbar = () => {
 
           {/* Right side authentication section */}
           <div className="flex items-center">
-            {user ? (
+            {user?.attributes.email ? (
               // User is logged in - show profile dropdown
               <div className="relative">
                 <button

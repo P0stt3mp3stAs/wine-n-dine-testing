@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Auth } from 'aws-amplify'
+import { signIn } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
+import { FormEvent } from 'react'
 
 export default function SignIn() {
   const router = useRouter()
@@ -11,16 +12,18 @@ export default function SignIn() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      await Auth.signIn(email, password)
+      await signIn({ username: email, password })
       router.push('/')
     } catch (err) {
-      setError(err.message)
+      // Type guard for error handling
+      const error = err as Error
+      setError(error.message || 'An error occurred during sign in')
     } finally {
       setLoading(false)
     }

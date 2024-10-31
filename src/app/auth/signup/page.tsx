@@ -1,23 +1,30 @@
 'use client'
 
-import { useState } from 'react'
-import { Auth } from 'aws-amplify'
+import { useState, FormEvent, ChangeEvent } from 'react'
+import { Amplify } from 'aws-amplify'
+import { signUp, confirmSignUp, signIn, resendSignUpCode } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+interface FormData {
+  email: string
+  password: string
+  confirmPassword: string
+}
+
 export default function SignUp() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
     confirmPassword: '',
   })
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [showConfirmation, setShowConfirmation] = useState(false)
-  const [confirmationCode, setConfirmationCode] = useState('')
+  const [error, setError] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
+  const [confirmationCode, setConfirmationCode] = useState<string>('')
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
       ...prev,
@@ -25,7 +32,7 @@ export default function SignUp() {
     }))
   }
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       return false
@@ -37,7 +44,7 @@ export default function SignUp() {
     return true
   }
 
-  const handleSignUp = async (e) => {
+  const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!validateForm()) return
 
@@ -45,35 +52,43 @@ export default function SignUp() {
     setLoading(true)
 
     try {
-      console.log('Attempting to sign up with:', formData.email) // Debug log
-      const signUpResponse = await Auth.signUp({
+      console.log('Attempting to sign up with:', formData.email)
+      const signUpResponse = await signUp({
         username: formData.email,
         password: formData.password,
-        attributes: {
-          email: formData.email,
+        options: {
+          userAttributes: {
+            email: formData.email,
+          },
         },
       })
-      console.log('Sign up response:', signUpResponse) // Debug log
+      console.log('Sign up response:', signUpResponse)
       setShowConfirmation(true)
     } catch (err) {
-      console.error('Sign up error:', err) // Debug log
-      setError(err.message || 'An error occurred during sign up')
+      console.error('Sign up error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred during sign up')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleConfirmSignUp = async (e) => {
+  const handleConfirmSignUp = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      await Auth.confirmSignUp(formData.email, confirmationCode)
-      await Auth.signIn(formData.email, formData.password)
+      await confirmSignUp({
+        username: formData.email,
+        confirmationCode
+      })
+      await signIn({
+        username: formData.email,
+        password: formData.password
+      })
       router.push('/')
     } catch (err) {
-      setError(err.message || 'An error occurred during confirmation')
+      setError(err instanceof Error ? err.message : 'An error occurred during confirmation')
     } finally {
       setLoading(false)
     }
@@ -81,10 +96,12 @@ export default function SignUp() {
 
   const resendConfirmationCode = async () => {
     try {
-      await Auth.resendSignUp(formData.email)
+      await resendSignUpCode({
+        username: formData.email
+      })
       alert('Confirmation code has been resent')
     } catch (err) {
-      setError(err.message || 'Error resending confirmation code')
+      setError(err instanceof Error ? err.message : 'Error resending confirmation code')
     }
   }
 

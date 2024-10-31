@@ -4,13 +4,14 @@ import React, { useRef, useEffect } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
+import { Group } from 'three'
 import SceneLighting from './SceneLighting'
 
 useGLTF.preload('/models/xybar2.gltf')
 
 function ModelWithLights() {
   const { scene } = useGLTF('/models/xybar2.gltf')
-  const groupRef = useRef()
+  const groupRef = useRef<Group>(null)
 
   const position = {
     x: 0,
