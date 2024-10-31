@@ -5,18 +5,19 @@ import { Amplify } from 'aws-amplify'
 import { signUp, confirmSignUp, signIn, resendSignUpCode } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import '../utils/amplify'
 
 interface FormData {
-  email: string
-  password: string
-  confirmPassword: string
+  email: string;
+  name: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export default function SignUp() {
   const router = useRouter()
   const [formData, setFormData] = useState<FormData>({
     email: '',
+    username: '',
     password: '',
     confirmPassword: '',
   })
@@ -46,54 +47,53 @@ export default function SignUp() {
   }
 
   const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!validateForm()) return
-
-    setError('')
-    setLoading(true)
-
+    e.preventDefault();
+    if (!validateForm()) return;
+  
+    setError('');
+    setLoading(true);
+  
     try {
-      console.log('Attempting to sign up with:', formData.email)
+      console.log('Attempting to sign up with:', formData.email);
       const signUpResponse = await signUp({
         username: formData.email,
         password: formData.password,
-        options: {
-          userAttributes: {
-            email: formData.email,
-          },
+        attributes: {
+          email: formData.email,
+          'name.formatted': formData.name,
         },
-      })
-      console.log('Sign up response:', signUpResponse)
-      setShowConfirmation(true)
+      });
+      console.log('Sign up response:', signUpResponse);
+      setShowConfirmation(true);
     } catch (err) {
-      console.error('Sign up error:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred during sign up')
+      console.error('Sign up error:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred during sign up');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleConfirmSignUp = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+  
     try {
       await confirmSignUp({
-        username: formData.email,
-        confirmationCode
-      })
+        username: formData.username,
+        confirmationCode,
+      });
       await signIn({
-        username: formData.email,
-        password: formData.password
-      })
-      router.push('/')
+        username: formData.username,
+        password: formData.password,
+      });
+      router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred during confirmation')
+      setError(err instanceof Error ? err.message : 'An error occurred during confirmation');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const resendConfirmationCode = async () => {
     try {
@@ -201,13 +201,28 @@ export default function SignUp() {
               />
             </div>
             <div>
+              <label htmlFor="name" className="sr-only">
+                Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
+                placeholder="Name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
               <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
@@ -222,7 +237,7 @@ export default function SignUp() {
               <input
                 id="confirmPassword"
                 name="confirmPassword"
-                type="password"
+                type="text"
                 required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm"
                 placeholder="Confirm Password"
