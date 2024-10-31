@@ -5,6 +5,7 @@ import { Amplify } from 'aws-amplify'
 import { signUp, confirmSignUp, signIn, resendSignUpCode } from 'aws-amplify/auth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import '../utils/amplify'
 
 interface FormData {
   email: string
