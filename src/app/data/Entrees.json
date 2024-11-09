@@ -1,0 +1,35 @@
+{
+    "entrees": [
+      {
+        "id": 1,
+        "name": "Caviar Blini",
+        "description": "Delicate blini topped with premium beluga caviar and crème fraîche.",
+        "price": 35
+      },
+      {
+        "id": 2,
+        "name": "Burrata Caprese",
+        "description": "Creamy burrata with heirloom tomatoes, fresh basil, and balsamic glaze.",
+        "price": 18
+      },
+      {
+        "id": 3,
+        "name": "Beef Carpaccio",
+        "description": "Thinly sliced raw beef tenderloin with arugula, shaved Parmesan, and truffle oil.",
+        "price": 28
+      },
+      {
+        "id": 4,
+        "name": "Escargot de Bourgogne",
+        "description": "Classic French snails in garlic-herb butter, served with a baguette.",
+        "price": 22
+      },
+      {
+        "id": 5,
+        "name": "Tuna Tartare",
+        "description": "Fresh ahi tuna with avocado, sesame, and citrus soy dressing.",
+        "price": 24
+      }
+    ]
+  }
+  

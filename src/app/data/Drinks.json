@@ -1,0 +1,35 @@
+{
+    "drinks": [
+      {
+        "id": 1,
+        "name": "Signature Martini",
+        "description": "Classic martini with a hint of lemon zest and premium gin.",
+        "price": 18
+      },
+      {
+        "id": 2,
+        "name": "Old Fashioned",
+        "description": "Smooth bourbon with a touch of bitters and an orange twist.",
+        "price": 20
+      },
+      {
+        "id": 3,
+        "name": "French 75",
+        "description": "Champagne, gin, lemon juice, and simple syrup for a light, bubbly drink.",
+        "price": 22
+      },
+      {
+        "id": 4,
+        "name": "Negroni",
+        "description": "Balanced mix of gin, Campari, and sweet vermouth.",
+        "price": 19
+      },
+      {
+        "id": 5,
+        "name": "Espresso Martini",
+        "description": "Rich espresso with vodka, coffee liqueur, and a touch of vanilla.",
+        "price": 21
+      }
+    ]
+  }
+  

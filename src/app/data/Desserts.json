@@ -1,0 +1,35 @@
+{
+    "desserts": [
+      {
+        "id": 1,
+        "name": "Crème Brûlée",
+        "description": "Classic vanilla bean custard with a caramelized sugar crust.",
+        "price": 18
+      },
+      {
+        "id": 2,
+        "name": "Chocolate Lava Cake",
+        "description": "Warm chocolate cake with a molten center, served with vanilla ice cream.",
+        "price": 20
+      },
+      {
+        "id": 3,
+        "name": "Tiramisu",
+        "description": "Layered Italian dessert with coffee-soaked ladyfingers and mascarpone cream.",
+        "price": 19
+      },
+      {
+        "id": 4,
+        "name": "Lemon Tart",
+        "description": "Zesty lemon filling with a buttery crust, topped with fresh berries.",
+        "price": 17
+      },
+      {
+        "id": 5,
+        "name": "Cheesecake",
+        "description": "Classic New York-style cheesecake with a graham cracker crust.",
+        "price": 18
+      }
+    ]
+  }
+  

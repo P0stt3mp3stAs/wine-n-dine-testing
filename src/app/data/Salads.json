@@ -1,0 +1,35 @@
+{
+    "salads": [
+      {
+        "id": 1,
+        "name": "Caesar Salad",
+        "description": "Crisp romaine, house-made Caesar dressing, Parmesan, and garlic croutons.",
+        "price": 18
+      },
+      {
+        "id": 2,
+        "name": "Beetroot & Goat Cheese Salad",
+        "description": "Roasted beets with creamy goat cheese, arugula, and a balsamic reduction.",
+        "price": 20
+      },
+      {
+        "id": 3,
+        "name": "Quinoa & Avocado Salad",
+        "description": "Protein-packed quinoa with avocado, kale, and citrus vinaigrette.",
+        "price": 22
+      },
+      {
+        "id": 4,
+        "name": "Burrata & Arugula Salad",
+        "description": "Peppery arugula with creamy burrata, heirloom tomatoes, and a drizzle of olive oil.",
+        "price": 25
+      },
+      {
+        "id": 5,
+        "name": "Caprese Salad",
+        "description": "Fresh mozzarella, tomatoes, and basil with a balsamic reduction.",
+        "price": 19
+      }
+    ]
+  }
+  
