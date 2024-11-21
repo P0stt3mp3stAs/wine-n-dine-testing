@@ -1,19 +1,24 @@
-// src/lib/db.ts
 import { Pool } from 'pg';
 
-// Prevent multiple pool creation in Next.js hot reloading
-const globalForPg = global as unknown as { pool: Pool };
+let pool: Pool;
 
-export const pool = globalForPg.pool || new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false // Adjust based on your SSL requirements
+function createPool() {
+  return new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    },
+    // Adjust connection limits for serverless
+    max: 10,
+    idleTimeoutMillis: 30000
+  });
+}
+
+export async function query(text: string, params?: Array<string | number>) {
+  if (!pool) {
+    pool = createPool();
   }
-});
 
-if (process.env.NODE_ENV !== 'production') globalForPg.pool = pool;
-
-export async function query(text: string, params?: any[]) {
   try {
     const client = await pool.connect();
     try {
@@ -26,4 +31,4 @@ export async function query(text: string, params?: any[]) {
     console.error('Database query error:', error);
     throw error;
   }
-};
+}
