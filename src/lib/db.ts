@@ -1,14 +1,19 @@
-// import { Pool } from 'pg';
+import { Pool } from 'pg';
 
-// const pool = new Pool({
-//   user: 'elghali',
-//   host: 'database-instance.cposom22eqj3.us-east-1.rds.amazonaws.com', // Update if the DB is hosted remotely
-//   database: 'database_name',
-//   password: 'SecurePass123!',
-//   port: 5432, // Default PostgreSQL port
-// });
+// Use environment variables for secure configuration
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Only for AWS RDS, remove in production if using proper SSL
+  }
+});
 
-// export async function query(text: string, params?: any[]) {
-//   const res = await pool.query(text, params);
-//   return res.rows;
-// }
+export async function query(text: string, params?: any[]) {
+  try {
+    const res = await pool.query(text, params);
+    return res.rows;
+  } catch (error) {
+    console.error('Database query error:', error);
+    throw error;
+  }
+}

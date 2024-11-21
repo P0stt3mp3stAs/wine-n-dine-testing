@@ -1,25 +1,23 @@
-// import Bar from "@/components/Bar";
-// import ChampagneCard from '@/components/ChampagneCard';
-// import { query } from '@/lib/db';
+import ChampagneCard from '@/components/ChampagneCard';
+import { query } from '@/lib/db';
 
 export default async function Home() {
-  // const champagnes = await query('SELECT name, description, price FROM champagnes');
+  const champagnes = await query('SELECT * FROM champagnes');
 
   return (
     <main>
       hello worls
-      {/* <Bar/> */}
       ...........................e
-      {/* <div className="grid gap-4">
-        {champagnes.map((champagne: { name: string; description: string; price: string }, index: number) => (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {champagnes.map((champagne) => (
           <ChampagneCard
-            key={index}
+            key={champagne.id} // Use unique database ID instead of index
             name={champagne.name}
             description={champagne.description}
             price={champagne.price}
           />
         ))}
-      </div> */}
+      </div>
       <div className="bg-gray-800 text-white p-4 text-center">
         <h1 className="text-3xl font-black">Wine and Dine</h1>
       </div>
