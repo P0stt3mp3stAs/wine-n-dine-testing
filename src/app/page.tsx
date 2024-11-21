@@ -1,4 +1,4 @@
-import Bar from "@/components/Bar";
+// import Bar from "@/components/Bar";
 // import ChampagneCard from '@/components/ChampagneCard';
 // import { query } from '@/lib/db';
 
