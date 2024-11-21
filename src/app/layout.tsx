@@ -1,7 +1,7 @@
 'use client'
 
 import './globals.css'
-import Navbar from '@/components/Navbar'
+// import Navbar from '@/components/Navbar'
 import './utils/amplify'
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Navbar />
+        {/* <Navbar /> */}
         {children}
       </body>
     </html>
