@@ -3,11 +3,14 @@ const fs = require('fs');
 
 // PostgreSQL connection configuration
 const pool = new Pool({
-    user: 'elghali',
-    host: 'localhost',
-    database: 'wine_dine',
-    password: 'M3nt0s@Work',
-    port: 5432,
+  user: 'elghali',
+  host: 'database-instance.cposom22eqj3.us-east-1.rds.amazonaws.com',
+  database: 'database_name',
+  password: 'SecurePass123!',
+  port: 5432,
+  ssl: {
+    rejectUnauthorized: false, // This disables certificate verification
+  },
 });
 
 // Load the JSON file

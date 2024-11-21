@@ -1,18 +1,25 @@
 import Bar from "@/components/Bar";
-import MenuItem from "@/components/MenuItem";
+import ChampagneCard from '@/components/ChampagneCard';
+import { query } from '@/lib/db';
 
-export default function Home() {
+export default async function Home() {
+  const champagnes = await query('SELECT name, description, price FROM champagnes');
+
   return (
-    <div>
+    <main>
       hello worls
-      <Bar/>
+      {/* <Bar/> */}
       ...........................e
-      <MenuItem 
-        image="/menu/des-002.jpg"
-        name="BSK Sundae"
-        description="Chocolate, raspberry, lime Chantilly"
-        price={12.00}
-      />
-    </div>
+      <div className="grid gap-4">
+        {champagnes.map((champagne: { name: string; description: string; price: string }, index: number) => (
+          <ChampagneCard
+            key={index}
+            name={champagne.name}
+            description={champagne.description}
+            price={champagne.price}
+          />
+        ))}
+      </div>
+    </main>
   );
 }
