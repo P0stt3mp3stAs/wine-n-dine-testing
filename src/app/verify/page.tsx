@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { verifyAccount, signIn } from '@/utils/auth';
+import { confirmSignUp, signIn } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 export default function VerifyPage() {
   const [email, setEmail] = useState('');
@@ -18,15 +19,31 @@ export default function VerifyPage() {
     setError('');
 
     try {
-      // First verify the account
-      await verifyAccount(email, code);
+      // First confirm signup
+      await confirmSignUp({
+        username: email,
+        confirmationCode: code
+      });
       
       // Then automatically sign in
-      await signIn(email, password);
+      const signInOutput = await signIn({ 
+        username: email,
+        password,
+      });
       
-      // Redirect to dashboard after successful verification and sign in
-      router.push('/dashboard');
+      if (signInOutput.isSignedIn) {
+        // Set auth token cookie
+        Cookies.set('accessToken', 'authenticated', { 
+          secure: true,
+          sameSite: 'strict',
+          expires: 1 // 1 day
+        });
+        
+        console.log('Verification and sign in successful, redirecting...');
+        router.push('/dashboard');
+      }
     } catch (err) {
+      console.error('Verification error:', err);
       const errorMessage = err instanceof Error ? err.message : 'An error occurred during verification';
       setError(errorMessage);
     } finally {
@@ -59,7 +76,7 @@ export default function VerifyPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -74,7 +91,7 @@ export default function VerifyPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
             <div>
@@ -89,7 +106,7 @@ export default function VerifyPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Verification Code"
                 value={code}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
+                onChange={(e) => setCode(e.target.value)}
               />
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { signIn } from 'aws-amplify/auth';
+import { useState, useEffect } from 'react';
+import { signIn, signOut } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
@@ -10,6 +10,19 @@ export default function SignIn() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // When the page loads, sign out any existing session
+  useEffect(() => {
+    const clearExistingSession = async () => {
+      try {
+        await signOut({ global: true });
+        Cookies.remove('accessToken');
+      } catch (error) {
+        console.log('No existing session to clear');
+      }
+    };
+    clearExistingSession();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,6 +51,11 @@ export default function SignIn() {
       }
     } catch (err) {
       console.error('Sign in error:', err);
+      // If user is already authenticated, redirect to dashboard
+      if (err instanceof Error && err.message.includes('already a signed in user')) {
+        router.push('/dashboard');
+        return;
+      }
       const errorMessage = err instanceof Error ? err.message : 'An error occurred during sign in';
       setError(errorMessage);
     } finally {
