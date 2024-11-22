@@ -7,12 +7,12 @@ import { useRouter } from 'next/navigation';
 export default function VerifyPage() {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
-  const [password, setPassword] = useState(''); // Added password field
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  const handleVerify = async (e) => {
+  const handleVerify = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
@@ -27,7 +27,8 @@ export default function VerifyPage() {
       // Redirect to dashboard after successful verification and sign in
       router.push('/dashboard');
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during verification';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +59,7 @@ export default function VerifyPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               />
             </div>
             <div>
@@ -73,7 +74,7 @@ export default function VerifyPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               />
             </div>
             <div>
@@ -88,7 +89,7 @@ export default function VerifyPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Verification Code"
                 value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
               />
             </div>
           </div>

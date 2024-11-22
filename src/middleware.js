@@ -1,22 +1,24 @@
 import { NextResponse } from 'next/server';
 
-export async function middleware(request) {
-  // Get token from cookie
-  const token = request.cookies.get('accessToken')?.value;
+export function middleware(request) {
+  const token = request.cookies.get('accessToken');
+  const path = request.nextUrl.pathname;
 
-  // If the user is not authenticated and trying to access protected routes
-  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/signin', request.url));
+  console.log('Middleware checking path:', path);
+  console.log('Token exists:', !!token);
+
+  // Only protect dashboard routes - don't redirect signin/signup anymore
+  if (path.startsWith('/dashboard')) {
+    if (!token) {
+      console.log('No token found, redirecting to signin');
+      return NextResponse.redirect(new URL('/signin', request.url));
+    }
   }
 
-  // If the user is authenticated and trying to access auth pages
-  if (token && (request.nextUrl.pathname.startsWith('/signin') || request.nextUrl.pathname.startsWith('/signup'))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
+  // Let all other routes pass through
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/signin', '/signup'],
+  matcher: ['/dashboard/:path*']
 };

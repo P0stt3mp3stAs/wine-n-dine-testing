@@ -1,4 +1,3 @@
-// src/app/signup/page.tsx
 'use client';
 import { useState } from 'react';
 import { signUp } from '@/utils/auth';
@@ -9,23 +8,19 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       await signUp(email, password);
-      setSuccess(true);
-      // Wait for 3 seconds before redirecting to sign in
-      setTimeout(() => {
-        router.push('/verify');
-      }, 3000);
+      router.push('/verify'); // Redirect to verification page after successful signup
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during signup';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -75,19 +70,13 @@ export default function SignUp() {
             </div>
           )}
 
-          {success && (
-            <div className="text-green-500 text-sm text-center">
-              Registration successful! Please check your email for verification. Redirecting to sign in...
-            </div>
-          )}
-
           <div>
             <button
               type="submit"
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {loading ? 'Signing up...' : 'Sign up'}
+              {loading ? 'Creating account...' : 'Sign up'}
             </button>
           </div>
         </form>
