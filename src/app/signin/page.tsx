@@ -1,8 +1,9 @@
 // src/app/signin/page.tsx
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn } from '@/utils/auth';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
@@ -17,8 +18,13 @@ export default function SignIn() {
     setError('');
     
     try {
-      await signIn(email, password);
-      router.push('/dashboard'); // Redirect to dashboard after successful login
+      const result = await signIn(email, password);
+      // Store token in cookie for middleware
+      const token = result.getAccessToken().getJwtToken();
+      Cookies.set('accessToken', token, { secure: true });
+      
+      // Redirect to dashboard after successful login
+      router.push('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {

@@ -1,4 +1,3 @@
-// src/utils/auth.js
 import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 
 const poolConfig = {
@@ -57,6 +56,10 @@ export const signIn = async (email, password) => {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
+        // Store tokens in localStorage
+        localStorage.setItem('accessToken', result.getAccessToken().getJwtToken());
+        localStorage.setItem('idToken', result.getIdToken().getJwtToken());
+        localStorage.setItem('refreshToken', result.getRefreshToken().getToken());
         resolve(result);
       },
       onFailure: (err) => {
@@ -104,5 +107,11 @@ export const signOut = () => {
   const cognitoUser = userPool.getCurrentUser();
   if (cognitoUser) {
     cognitoUser.signOut();
+    localStorage.clear();
   }
+};
+
+// New helper function to check if user is authenticated
+export const isAuthenticated = () => {
+  return localStorage.getItem('accessToken') !== null;
 };
