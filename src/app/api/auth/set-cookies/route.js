@@ -1,4 +1,3 @@
-// src/app/api/auth/set-cookies/route.js
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -32,21 +31,6 @@ export async function POST(request) {
     maxAge: 30 * 24 * 60 * 60, // 30 days
     path: '/',
   });
-
-  return NextResponse.json({ success: true });
-}
-
-// src/app/api/auth/clear-cookies/route.js
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
-export async function POST() {
-  const cookieStore = cookies();
-
-  // Clear all auth cookies
-  cookieStore.delete('accessToken');
-  cookieStore.delete('idToken');
-  cookieStore.delete('refreshToken');
 
   return NextResponse.json({ success: true });
 }
