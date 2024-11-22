@@ -1,50 +1,21 @@
-import ChampagneCard from '@/components/ChampagneCard';
-import { query } from '@/lib/db';
+import React from "react";
 
 export default async function Home() {
-  const champagnes = await query('SELECT * FROM champagnes');
 
   return (
     <main>
-      hello worls
-      ...........................e
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {champagnes.map((champagne) => (
-          <ChampagneCard
-            key={champagne.id} // Use unique database ID instead of index
-            name={champagne.name}
-            description={champagne.description}
-            price={champagne.price}
-          />
-        ))}
-      </div>
-      <div className="bg-gray-800 text-white p-4 text-center">
+      <div className="bg-gray-800 text-white p-4 text-center my-5">
         <h1 className="text-3xl font-black">Wine and Dine</h1>
       </div>
       <div className="max-w-4xl mx-auto p-4 text-red-500 text-xl bg-yellow-400 font-black">
-        <p>
-          Nestled in a quiet corner of the city was &quot;Wine and Dine,&quot; a restaurant unlike any other. It wasn&apos;t the shimmering chandeliers or the muted tones of its minimalist design that made it stand out—it was the philosophy behind it. Here, introverts found their haven, a space designed with their needs and preferences at heart.
+        <p className="mb-4">
+        At Quiet Bites, we understand that dining out should be as comfortable as staying in. Designed with introverts in mind, our restaurant offers a serene, low-pressure atmosphere where you can enjoy exceptional meals without the bustle of traditional dining.
+        </p>
+        <p className="mb-4">
+        Whether you are seeking a cozy nook to savor your favorite dish, a quiet space to unwind, or the luxury of minimal interactions, we have got you covered. From dimmed lighting to private seating options, every detail is curated to let you truly relax and relish your time here.
         </p>
         <p>
-          At &quot;Wine and Dine,&quot; there were no bustling crowds or loud exchanges between staff and patrons. Instead, the experience was orchestrated to perfection. Upon entering, guests were greeted not by a human host but by a sleek touch screen embedded in the wall. This digital maître d&apos; allowed diners to select their table from a live map of the restaurant, ensuring they could choose a spot that felt just right—whether tucked away in a cozy corner or by a serene window overlooking the cityscape.
-        </p>
-        <p>
-          Once a table was selected, guests would be directed via subtle floor lights to their destination. Waiting in line? Not here. The founders of &quot;Wine and Dine&quot; knew that one of the biggest hurdles for introverts was the anxiety-inducing queue. Instead, the restaurant offered staggered reservations and table allocations that ensured no one ever had to stand around awkwardly.
-        </p>
-        <p>
-          Each table was set to perfection before guests arrived, eliminating the need to wait for someone to come over with a clatter of plates or menus. Speaking of menus, they were entirely digital and interactive. A tablet at each table allowed guests to browse the curated selection of dishes, complete with pictures, descriptions, and even pairing recommendations for wine and cocktails. Customizations could be made with the swipe of a finger, and orders were sent directly to the kitchen without the need for small talk or explanations.
-        </p>
-        <p>
-          The dining experience itself was a marvel. Food arrived via a discreet robotic trolley system that glided silently across the restaurant floor. Each dish was carefully covered to maintain temperature and unveiled upon arrival. There was no need for awkward exchanges with a waiter about how the food looked or tasted—it was just you, the plate, and the ambiance.
-        </p>
-        <p>
-          The atmosphere was carefully curated to be as calming as possible. Soft ambient music played in the background, interspersed with the occasional sound of trickling water from the indoor fountain. Tables were spaced generously apart to ensure privacy, and partitions could be adjusted to create an even more secluded environment for those who wished to be entirely in their own world.
-        </p>
-        <p>
-          Even the checkout process was seamless. When the meal was over, guests could pay directly from the tablet at their table. A single tap completed the transaction, and a printed receipt was delivered to the table by the same robotic trolley that brought the food.
-        </p>
-        <p>
-          &quot;Wine and Dine&quot; wasn&apos;t just a restaurant—it was a sanctuary. It celebrated the joy of solitude and the art of quiet indulgence. For the introverts who frequented it, it wasn&apos;t just about the food; it was about finally finding a place where they felt understood. In a world that often demanded constant interaction, &quot;Wine and Dine&quot; was a breath of fresh air—a reminder that sometimes, the best company is your own.
+        Experience dining that feels as personal as it is delicious. Welcome to your safe space—where solitude meets flavor.
         </p>
       </div>
     </main>

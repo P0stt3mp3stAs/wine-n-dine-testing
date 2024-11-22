@@ -8,7 +8,6 @@ function createPool() {
     ssl: {
       rejectUnauthorized: false
     },
-    // Adjust connection limits for serverless
     max: 10,
     idleTimeoutMillis: 30000
   });
