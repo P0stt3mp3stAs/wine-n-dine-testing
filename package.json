@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "optimize-model": "node scripts/optimize-model.js"
   },
   "dependencies": {
     "@aws-amplify/auth": "^6.0.0",
@@ -33,6 +34,8 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
+    "fs-extra": "^11.2.0",
+    "gltf-pipeline": "^4.1.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "typescript": "^5"
