@@ -13,8 +13,8 @@ const Navbar = () => {
               <Link href="/" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
                 Home
               </Link>
-              <Link href="/3d" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
-                3D
+              <Link href="/seats" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
+                seats
               </Link>
               <Link href="/menu" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
                 Menu
