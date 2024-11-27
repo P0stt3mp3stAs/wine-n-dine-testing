@@ -1,8 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import Left from '/Users/mymac/Desktop/T/src/components/Left.jsx';
-import Right from '/Users/mymac/Desktop/T/src/components/Right.jsx';
+import Left from '@/components/Left';  // Updated import path
+import Right from '@/components/Right';
 
 // Dynamically import the 3D component with no SSR
 // const Scene3D = dynamic(() => import('/components/Scene3D'), { ssr: false });
