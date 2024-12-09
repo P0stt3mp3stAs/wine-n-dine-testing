@@ -1,97 +1,40 @@
-'use client';
-import Image from "next/image";
-import { useState, useEffect } from "react";
+'use client'
 
-const DashboardHero = () => {
- const [currentSlide, setCurrentSlide] = useState(0);
+import Link from 'next/link'
 
- const slides = [
-   {
-     title: "Experience Culinary Excellence",
-     description: "Book your table now and indulge in an unforgettable dining experience.",
-     image: "/firstPic.jpeg"
-   },
-   {
-     title: "Private Fine Dining",
-     description: "Enjoy an intimate dining experience in our exclusive private rooms.",
-     image: "/secondPic.jpeg"  // Add this image
-   },
-   {
-     title: "Seasonal Specialties",
-     description: "Discover our chef's seasonal menu featuring fresh local ingredients.",
-     image: "/thirdPic.jpeg"  // Add this image
-   },
-   {
-     title: "Special Events & Occasions",
-     description: "Make your celebrations memorable with our special arrangements.",
-     image: "/fourthPic.jpeg"  // Add this image
-   }
- ];
+const Navbar = () => {
+  return (
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow rounded-lg mx-5 z-50">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 font-bold">
+          {/* Left side navigation links */}
+          <div className="flex items-center">
+            <div className="flex space-x-4">
+              <Link href="/" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
+                Home
+              </Link>
+              <Link href="/seats" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
+                seats
+              </Link>
+              <Link href="/menu" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
+                Menu
+              </Link>
+            </div>
+          </div>
 
- useEffect(() => {
-   const timer = setInterval(() => {
-     setCurrentSlide((prev) => (prev + 1) % slides.length);
-   }, 5000);
+          {/* Right side authentication section */}
+          <div className="flex items-center space-x-4">
+            <Link href="/signin" className="text-black font-bold hover:text-red-700 px-3 py-2 rounded-md text-sm">
+              Log-In
+            </Link>
+            <Link href="/signup" className="text-white font-bold bg-red-500 hover:bg-red-400 px-3 py-2 rounded-md text-sm">
+              Sign-Up
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}
 
-   return () => clearInterval(timer);
- }, []);
-
- return (
-   <div className="w-full min-h-screen bg-red-500 relative overflow-hidden">
-     <div className="absolute inset-0 flex">
-       {slides.map((slide, index) => (
-         <div
-           key={index}
-           className={`min-w-full transition-transform duration-500 ease-in-out transform ${
-             index === currentSlide 
-               ? "translate-x-0" 
-               : index < currentSlide 
-               ? "-translate-x-full"
-               : "translate-x-full"
-           }`}
-         >
-           <div className="h-screen flex items-center justify-center px-4">
-             <div className="container mx-auto flex flex-col md:flex-row items-center gap-8">
-               <div className="flex-1 space-y-6">
-                 <h1 className="text-5xl font-bold text-white leading-tight">
-                   {slide.title}
-                 </h1>
-                 <p className="text-lg text-white/90">
-                   {slide.description}
-                 </p>
-                 <button className="bg-black text-white px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors">
-                   Reserve a Table
-                 </button>
-               </div>
-
-               <div className="flex-1 relative h-[400px] w-full">
-                 <Image
-                   src={slide.image}
-                   alt="Restaurant Image"
-                   fill
-                   className="object-cover rounded-lg"
-                   priority
-                 />
-               </div>
-             </div>
-           </div>
-         </div>
-       ))}
-     </div>
-
-     <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-2">
-       {slides.map((_, index) => (
-         <button
-           key={index}
-           onClick={() => setCurrentSlide(index)}
-           className={`w-3 h-3 rounded-full transition-all duration-300 ${
-             index === currentSlide ? "bg-white" : "bg-white/50"
-           }`}
-         />
-       ))}
-     </div>
-   </div>
- );
-};
-
-export default DashboardHero;
+export default Navbar

@@ -4,6 +4,7 @@ import { getCurrentUser, signOut, fetchUserAttributes } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import DashboardHero from '@/components/DashboardHero';
+import ReservationSection from '@/components/ReservationSection';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -51,10 +52,9 @@ export default function Dashboard() {
 
   return (
     <main>
-      {/* Hero Section First */}
       <DashboardHero />
+      <ReservationSection />
 
-      {/* Dashboard Header */}
       <div className="p-4">
         <div className="max-w-7xl mx-auto">
           <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg">
