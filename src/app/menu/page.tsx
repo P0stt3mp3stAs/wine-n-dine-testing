@@ -1,7 +1,7 @@
 import { query } from '@/lib/db';
-import MenuSection from '@/components/MenuSection';
-import CartWrapper from '@/components/CartWrapper';
-import CartSummary from '@/components/CartSummary';
+import MenuSection from '@/components/menu/MenuSection';
+import CartWrapper from '@/components/menu/CartWrapper';
+import CartSummary from '@/components/menu/CartSummary';
 
 // Helper function to add category prefix to IDs and image paths
 function addCategoryPrefix(items: any[], prefix: string, imagePrefix: string) {

@@ -1,7 +1,7 @@
 'use client';
 // CartSummary.tsx
 import { useState } from 'react';
-import { useCart } from './CartContext';
+import { useCart } from '@/components/menu/CartContext';
 
 const CartSummary = () => {
   const { items } = useCart();

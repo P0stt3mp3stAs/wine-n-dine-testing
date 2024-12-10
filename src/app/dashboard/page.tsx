@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import DashboardHero from '@/components/DashboardHero';
 import ReservationSection from '@/components/ReservationSection';
+import MenuPreview from '@/components/menu/MenuPreview';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -53,6 +54,7 @@ export default function Dashboard() {
   return (
     <main>
       <DashboardHero />
+      <MenuPreview />
       <ReservationSection />
 
       <div className="p-4">

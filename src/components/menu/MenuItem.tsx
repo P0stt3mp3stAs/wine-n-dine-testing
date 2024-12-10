@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCart } from './CartContext';
+import { useCart } from '@/components/menu/CartContext';
 import Image from 'next/image';
 
 type MenuItemProps = {

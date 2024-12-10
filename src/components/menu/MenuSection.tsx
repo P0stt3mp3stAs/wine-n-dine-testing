@@ -1,6 +1,6 @@
 'use client'
 
-import MenuItem from './MenuItem';  // Add this import at the top
+import MenuItem from './MenuItem';
 
 type MenuSectionProps = {
   title: string;

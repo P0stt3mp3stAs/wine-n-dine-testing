@@ -49,7 +49,7 @@ const DashboardHero = () => {
   };
 
  return (
-   <div className="w-full h-screen bg-red-500 relative overflow-hidden">
+   <div className="w-full h-[50vh] bg-red-500 relative overflow-hidden">
      <div className="absolute inset-0">
        {slides.map((slide, index) => (
          <div
@@ -59,15 +59,18 @@ const DashboardHero = () => {
            <div className="h-full flex items-center justify-center px-4">
              <div className="container mx-auto flex flex-col md:flex-row items-center justify-center gap-8">
                <div className="flex-1 space-y-6 max-w-xl">
-                 <h1 className="text-5xl font-bold text-white leading-tight">
+                <h1 className="text-5xl font-bold text-white leading-tight">
                    {slide.title}
-                 </h1>
-                 <p className="text-lg text-white/90">
+                </h1>
+                <p className="text-lg text-white/90">
                    {slide.description}
-                 </p>
-                 <button className="bg-black text-white px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors">
-                   Reserve a Table
-                 </button>
+                </p>
+                <button 
+                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                className="bg-black text-white px-6 py-3 rounded-md font-medium hover:bg-gray-800 transition-colors"
+                >
+                Reserve a Table
+                </button>
                </div>
 
                <div className="flex-1 relative h-[400px] w-full max-w-xl">

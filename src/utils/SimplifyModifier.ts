@@ -1,4 +1,3 @@
-// utils/SimplifyModifier.ts
 import { BufferGeometry } from 'three';
 
 declare module 'three' {
