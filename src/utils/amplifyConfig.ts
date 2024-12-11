@@ -1,3 +1,4 @@
+// amplifyConfig.ts
 import { Amplify } from 'aws-amplify';
 
 Amplify.configure({
@@ -7,5 +8,13 @@ Amplify.configure({
       userPoolClientId: '5hlt0jspd175jnj3j8rf9hf2t2',
       signUpVerificationMethod: 'code',
     }
+  },
+  Storage: {
+    S3: {
+      bucket: 'my-app-user-profiles', // Replace with your bucket name
+      region: 'us-east-1', // Replace with your region
+    }
   }
+}, {
+  ssr: true
 });

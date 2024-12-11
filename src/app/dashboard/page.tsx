@@ -1,15 +1,20 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getCurrentUser, signOut, fetchUserAttributes } from 'aws-amplify/auth';
+import { getCurrentUser, signOut } from '@/utils/auth';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import DashboardHero from '@/components/DashboardHero';
 import ReservationSection from '@/components/ReservationSection';
 import MenuPreview from '@/components/menu/MenuPreview';
 
+interface UserInfo {
+  email: string | null;
+  username: string | null;
+}
+
 export default function Dashboard() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<UserInfo>({ email: null, username: null });
 
   useEffect(() => {
     checkAuth();
@@ -18,12 +23,16 @@ export default function Dashboard() {
   const checkAuth = async () => {
     try {
       const currentUser = await getCurrentUser();
-      const attributes = await fetchUserAttributes();
-      setUserEmail(attributes.email || null);
-      console.log('Logged in user:', attributes.email);
+      if (currentUser) {
+        setUserInfo({
+          email: currentUser.email || null,
+          username: currentUser.username || null
+        });
+        console.log('Logged in user:', currentUser.email);
+      }
     } catch (error) {
       console.log('No user is logged in');
-      setUserEmail(null);
+      setUserInfo({ email: null, username: null });
       router.push('/signin');
     }
   };
@@ -35,11 +44,11 @@ export default function Dashboard() {
       Cookies.remove('idToken');
       Cookies.remove('refreshToken');
       console.log('Cookies cleared');
-      await signOut({ global: true });
-      console.log('Amplify signout complete');
+      await signOut();
+      console.log('Signed out');
       localStorage.clear();
       console.log('Local storage cleared');
-      setUserEmail(null);
+      setUserInfo({ email: null, username: null });
       window.location.href = '/signin';
     } catch (error) {
       console.error('Error during sign out:', error);
@@ -47,7 +56,7 @@ export default function Dashboard() {
     }
   };
 
-  if (!userEmail) {
+  if (!userInfo.email) {
     return null;
   }
 
@@ -63,7 +72,11 @@ export default function Dashboard() {
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-black">Dashboard</h1>
-                <p className="text-sm mt-2">Logged in as: {userEmail}</p>
+                <p className="text-sm mt-2">
+                  {userInfo.username && `@${userInfo.username}`}
+                  <br />
+                  {userInfo.email}
+                </p>
               </div>
               <button
                 onClick={handleSignOut}

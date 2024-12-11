@@ -7,12 +7,15 @@ const poolConfig = {
 
 const userPool = new CognitoUserPool(poolConfig);
 
-export const signUp = async (email, password) => {
+export const signUp = async (email, password, username) => {
   return new Promise((resolve, reject) => {
     userPool.signUp(
       email,
       password,
-      [{ Name: 'email', Value: email }],
+      [
+        { Name: 'email', Value: email },
+        { Name: 'preferred_username', Value: username }
+      ],
       null,
       (err, result) => {
         if (err) {
@@ -56,7 +59,6 @@ export const signIn = async (email, password) => {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        // Store tokens in localStorage
         localStorage.setItem('accessToken', result.getAccessToken().getJwtToken());
         localStorage.setItem('idToken', result.getIdToken().getJwtToken());
         localStorage.setItem('refreshToken', result.getRefreshToken().getToken());
@@ -96,6 +98,7 @@ export const getCurrentUser = () => {
         }
         resolve({
           email: attributes.find(attr => attr.Name === 'email')?.Value,
+          username: attributes.find(attr => attr.Name === 'preferred_username')?.Value,
           isVerified: session.isValid()
         });
       });
@@ -111,7 +114,21 @@ export const signOut = () => {
   }
 };
 
-// New helper function to check if user is authenticated
 export const isAuthenticated = () => {
   return localStorage.getItem('accessToken') !== null;
+};
+
+export const checkUsernameAvailability = async (username) => {
+  return new Promise((resolve, reject) => {
+    userPool.listUsers({
+      Filter: `preferred_username = "${username}"`,
+      Limit: 1
+    }, (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(data.Users.length === 0);
+    });
+  });
 };
