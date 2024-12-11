@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getCurrentUser, signOut } from '@/utils/auth';
+import { getCurrentUser } from '@/utils/auth';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 import DashboardHero from '@/components/DashboardHero';
 import ReservationSection from '@/components/ReservationSection';
 import MenuPreview from '@/components/menu/MenuPreview';
@@ -37,25 +36,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      console.log('Starting signout process...');
-      Cookies.remove('accessToken');
-      Cookies.remove('idToken');
-      Cookies.remove('refreshToken');
-      console.log('Cookies cleared');
-      await signOut();
-      console.log('Signed out');
-      localStorage.clear();
-      console.log('Local storage cleared');
-      setUserInfo({ email: null, username: null });
-      window.location.href = '/signin';
-    } catch (error) {
-      console.error('Error during sign out:', error);
-      window.location.href = '/signin';
-    }
-  };
-
   if (!userInfo.email) {
     return null;
   }
@@ -65,7 +45,6 @@ export default function Dashboard() {
       <DashboardHero />
       <MenuPreview />
       <ReservationSection />
-
       <div className="p-4">
         <div className="max-w-7xl mx-auto">
           <div className="bg-gray-800 text-white p-4 rounded-lg shadow-lg">
@@ -79,10 +58,10 @@ export default function Dashboard() {
                 </p>
               </div>
               <button
-                onClick={handleSignOut}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-bold transition-colors"
+                onClick={() => router.push('/profile')}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-bold transition-colors"
               >
-                Sign Out
+                Profile
               </button>
             </div>
           </div>
