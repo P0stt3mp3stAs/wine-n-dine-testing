@@ -1,14 +1,18 @@
 'use client';
 
+import ModelViewer from '@/components/ModelViewer';
 import React from 'react';
 
 export default function SeatsPage() {
   return (
     <main className="h-screen flex flex-col">
-      <div className="bg-gray-800 text-white p-4 text-center">
+      <div className="bg-gray-800 text-white p-4 text-center mt-20">
         <h1 className="text-3xl font-black">Wine and Dine Seats</h1>
       </div>
-      <div className="flex-grow overflow-auto">
+      <div>
+        <ModelViewer />
+      </div>
+      {/* <div className="flex-grow overflow-auto">
         <div className="sketchfab-embed-wrapper p-4">
           <iframe 
             title="Generic Bar Stool" 
@@ -48,7 +52,7 @@ export default function SeatsPage() {
             </a>
           </p>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 }
