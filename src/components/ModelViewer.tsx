@@ -11,118 +11,9 @@ import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import type { PointerLockControls as PointerLockControlsImpl } from 'three/examples/jsm/controls/PointerLockControls';
 
-// Raycaster for interaction
-function useRaycaster() {
-  const { camera, scene } = useThree();
-  const raycaster = new THREE.Raycaster();
-  const rayDirection = new THREE.Vector3();
-
-  const checkIntersection = useCallback(() => {
-    rayDirection.set(0, 0, -1);
-    rayDirection.unproject(camera);
-    rayDirection.sub(camera.position).normalize();
-
-    raycaster.set(camera.position, rayDirection);
-    raycaster.near = 0;
-    raycaster.far = 100;
-
-    const intersects = raycaster.intersectObjects(scene.children, true);
-    return intersects.find(intersect => 
-      intersect.object instanceof THREE.Mesh && 
-      intersect.object.userData.interactive
-    );
-  }, [camera, scene.children]);
-
-  return checkIntersection;
-}
-
-// Crosshair component
-function Crosshair() {
-  return (
-    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
-      <div className="absolute w-0.5 h-5 bg-white left-1/2 -translate-x-1/2 border border-black"></div>
-      <div className="absolute h-0.5 w-5 bg-white top-1/2 -translate-y-1/2 border border-black"></div>
-    </div>
-  );
-}
-
-// Base model component (non-interactive)
-function BaseModel({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
-  
-  useEffect(() => {
-    scene.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        object.userData.collidable = true;
-      }
-    });
-  }, [scene]);
-  
-  return <primitive object={scene} scale={1} />;
-}
-
-// Interactive model component with improved hit detection
-function Model({ url, position, id }: { url: string; position?: [number, number, number]; id?: string }) {
-  const { scene } = useGLTF(url);
-  const [hovered, setHovered] = useState(false);
-  const meshRef = useRef<THREE.Group>();
-  
-  useEffect(() => {
-    scene.traverse((object) => {
-      if (object instanceof THREE.Mesh) {
-        object.userData.collidable = true;
-        object.userData.modelId = id;
-        object.userData.interactive = true;
-        // Compute accurate bounding box
-        object.geometry.computeBoundingBox();
-        object.geometry.computeBoundingSphere();
-      }
-    });
-  }, [scene, id]);
-
-  useEffect(() => {
-    if (meshRef.current) {
-      meshRef.current.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          if (hovered) {
-            child.material.emissive = new THREE.Color(0xff0000);
-            child.material.emissiveIntensity = 0.5;
-          } else {
-            child.material.emissive = new THREE.Color(0x000000);
-            child.material.emissiveIntensity = 0;
-          }
-        }
-      });
-    }
-  }, [hovered]);
-
-  // Use custom raycaster for better hit detection
-  const checkIntersection = useRaycaster();
-
-  useFrame(() => {
-    const intersection = checkIntersection();
-    if (intersection?.object.userData.modelId === id) {
-      if (!hovered) setHovered(true);
-    } else if (hovered) {
-      setHovered(false);
-    }
-  });
-  
-  return (
-    <group 
-      position={position}
-      ref={meshRef}
-      onClick={(event) => {
-        event.stopPropagation();
-        const intersection = checkIntersection();
-        if (intersection?.object.userData.modelId === id) {
-          console.log('Clicked model ID:', id);
-        }
-      }}
-    >
-      <primitive object={scene} scale={1} />
-    </group>
-  );
+interface ModelViewerProps {
+  availableSeats?: string[];
+  onSeatSelect?: (seatId: string) => void;
 }
 
 // First Person Controls
@@ -199,7 +90,10 @@ function FirstPersonController() {
     );
 
     const intersects = raycaster.intersectObjects(scene.children, true);
-    return intersects.some(intersect => intersect.object instanceof THREE.Mesh && intersect.object.userData.collidable);
+    return intersects.some(intersect => 
+      intersect.object instanceof THREE.Mesh && 
+      intersect.object.userData.collidable
+    );
   };
 
   useFrame(() => {
@@ -211,34 +105,34 @@ function FirstPersonController() {
     if (moveState.current.forward) {
       getDirection.setFromEuler(rotation);
       if (!checkCollision(getDirection)) {
-        controlsRef.current.moveForward(moveSpeed);
+        camera.position.addScaledVector(getDirection.normalize(), moveSpeed);
       }
     }
     if (moveState.current.backward) {
       getDirection.setFromEuler(rotation);
       if (!checkCollision(getDirection.negate())) {
-        controlsRef.current.moveForward(-moveSpeed);
+        camera.position.addScaledVector(getDirection.normalize(), moveSpeed);
       }
     }
     if (moveState.current.left) {
       getDirection.setFromEuler(rotation);
       getDirection.cross(camera.up);
       if (!checkCollision(getDirection.negate())) {
-        controlsRef.current.moveRight(-moveSpeed);
+        camera.position.addScaledVector(getDirection.normalize(), moveSpeed);
       }
     }
     if (moveState.current.right) {
       getDirection.setFromEuler(rotation);
       getDirection.cross(camera.up);
       if (!checkCollision(getDirection)) {
-        controlsRef.current.moveRight(moveSpeed);
+        camera.position.addScaledVector(getDirection.normalize(), moveSpeed);
       }
     }
   });
 
   return (
     <PointerLockControls 
-      ref={controlsRef}
+      ref={controlsRef as any}
       onUnlock={() => {
         const startExploring = document.getElementById('startExploring');
         if (startExploring) startExploring.style.display = 'flex';
@@ -247,46 +141,79 @@ function FirstPersonController() {
   );
 }
 
-// Start screen component
-function StartScreen({ onStart }: { onStart: () => void }) {
+// Model component
+function Model({ url, position, id, isAvailable, onSelect }: { 
+  url: string; 
+  position?: [number, number, number]; 
+  id?: string;
+  isAvailable?: boolean;
+  onSelect?: (id: string) => void;
+}) {
+  const { scene } = useGLTF(url);
+  const [hovered, setHovered] = useState(false);
+  const meshRef = useRef<THREE.Group>(null);
+  
+  useEffect(() => {
+    if (meshRef.current) {
+      meshRef.current.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          if (id) { // Only apply to interactive models
+            if (isAvailable) {
+              child.material.emissive = new THREE.Color(hovered ? 0x00ff00 : 0x004400);
+              child.material.emissiveIntensity = hovered ? 0.5 : 0.3;
+            } else {
+              child.material.emissive = new THREE.Color(0x440000);
+              child.material.emissiveIntensity = 0.3;
+            }
+          }
+        }
+      });
+    }
+  }, [hovered, isAvailable, id]);
+  
   return (
-    <div 
-      id="startExploring" 
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50"
+    <group 
+      position={position}
+      ref={meshRef}
+      onClick={(event) => {
+        if (id && isAvailable && onSelect) {
+          event.stopPropagation();
+          onSelect(id);
+        }
+      }}
+      onPointerOver={(event) => {
+        if (id && isAvailable) {
+          event.stopPropagation();
+          setHovered(true);
+        }
+      }}
+      onPointerOut={(event) => {
+        if (id && isAvailable) {
+          event.stopPropagation();
+          setHovered(false);
+        }
+      }}
     >
-      <div className="text-center text-white p-6 rounded-lg">
-        <h2 className="text-2xl mb-4">Restaurant Walkthrough</h2>
-        <p className="mb-4">
-          Use WASD or Arrow Keys to move<br />
-          Mouse to look around<br />
-          Click to interact with furniture<br />
-          ESC to exit
-        </p>
-        <button
-          onClick={onStart}
-          className="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
-        >
-          Start Exploring
-        </button>
-      </div>
+      <primitive object={scene} scale={1} />
+    </group>
+  );
+}
+
+// Crosshair component
+function Crosshair() {
+  return (
+    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
+      <div className="absolute w-0.5 h-5 bg-white left-1/2 -translate-x-1/2 border border-black"></div>
+      <div className="absolute h-0.5 w-5 bg-white top-1/2 -translate-y-1/2 border border-black"></div>
     </div>
   );
 }
 
-// Main viewer component
-function RestaurantViewer() {
-  const [showStart, setShowStart] = useState(true);
-
-  const handleStart = useCallback(() => {
-    setShowStart(false);
-    const startExploring = document.getElementById('startExploring');
-    if (startExploring) startExploring.style.display = 'none';
-  }, []);
-
+// Main ModelViewer component
+function ModelViewer({ availableSeats = [], onSeatSelect }: ModelViewerProps) {
   return (
     <div className="w-full h-screen">
       <Crosshair />
-      <StartScreen onStart={handleStart} />
       
       <Canvas
         camera={{
@@ -305,18 +232,63 @@ function RestaurantViewer() {
         {/* Scene */}
         <Suspense fallback={null}>
           {/* Base model is non-interactive */}
-          <BaseModel url="/models/base/base.gltf" />
-
+          <Model url="/models/base/base.gltf" />
+          
           {/* Interactive models */}
-          <Model url="/models/couch/couch.gltf" id="couch" />
-          <Model url="/models/2table/2table.gltf" id="2table" />
-          <Model url="/models/2table1/2table1.gltf" id="2table1" />
-          <Model url="/models/4table/4table.gltf" id="4table" />
-          <Model url="/models/4table1/4table1.gltf" id="4table1" />
-          <Model url="/models/stool/stool.gltf" id="stool" />
-          <Model url="/models/stool1/stool1.gltf" id="stool1" />
-          <Model url="/models/stool2/stool2.gltf" id="stool2" />
-          <Model url="/models/stool3/stool3.gltf" id="stool3" />
+          <Model 
+            url="/models/couch/couch.gltf" 
+            id="couch" 
+            isAvailable={availableSeats.includes('couch')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/2table/2table.gltf" 
+            id="2table"
+            isAvailable={availableSeats.includes('2table')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/2table1/2table1.gltf" 
+            id="2table1"
+            isAvailable={availableSeats.includes('2table1')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/4table/4table.gltf" 
+            id="4table"
+            isAvailable={availableSeats.includes('4table')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/4table1/4table1.gltf" 
+            id="4table1"
+            isAvailable={availableSeats.includes('4table1')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/stool/stool.gltf" 
+            id="stool"
+            isAvailable={availableSeats.includes('stool')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/stool1/stool1.gltf" 
+            id="stool1"
+            isAvailable={availableSeats.includes('stool1')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/stool2/stool2.gltf" 
+            id="stool2"
+            isAvailable={availableSeats.includes('stool2')}
+            onSelect={onSeatSelect}
+          />
+          <Model 
+            url="/models/stool3/stool3.gltf" 
+            id="stool3"
+            isAvailable={availableSeats.includes('stool3')}
+            onSelect={onSeatSelect}
+          />
         </Suspense>
 
         <FirstPersonController />
@@ -325,6 +297,6 @@ function RestaurantViewer() {
   );
 }
 
-export default dynamic(() => Promise.resolve(RestaurantViewer), {
+export default dynamic(() => Promise.resolve(ModelViewer), {
   ssr: false
 });

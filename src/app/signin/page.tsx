@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { signIn, signOut } from 'aws-amplify/auth';
+import { useState } from 'react';
+import { signIn } from 'aws-amplify/auth';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
@@ -11,51 +11,30 @@ export default function SignIn() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  // When the page loads, sign out any existing session
-  useEffect(() => {
-    const clearExistingSession = async () => {
-      try {
-        await signOut({ global: true });
-        Cookies.remove('accessToken');
-      } catch (error) {
-        console.log('No existing session to clear');
-      }
-    };
-    clearExistingSession();
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loading) return; // Prevent multiple submissions
+    
     setLoading(true);
     setError('');
     
     try {
-      console.log('Attempting to sign in...');
       const signInOutput = await signIn({ 
         username: email,
         password,
       });
       
-      console.log('Sign in response:', signInOutput);
-      
       if (signInOutput.isSignedIn) {
-        // Set auth token cookie
         Cookies.set('accessToken', 'authenticated', { 
           secure: true,
           sameSite: 'strict',
-          expires: 1 // 1 day
+          expires: 1
         });
         
-        console.log('Sign in successful, redirecting...');
         router.push('/dashboard');
       }
     } catch (err) {
       console.error('Sign in error:', err);
-      // If user is already authenticated, redirect to dashboard
-      if (err instanceof Error && err.message.includes('already a signed in user')) {
-        router.push('/dashboard');
-        return;
-      }
       const errorMessage = err instanceof Error ? err.message : 'An error occurred during sign in';
       setError(errorMessage);
     } finally {

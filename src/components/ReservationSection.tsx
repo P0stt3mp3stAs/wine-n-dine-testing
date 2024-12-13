@@ -1,8 +1,11 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 const ReservationSection = () => {
+  const router = useRouter();
   const [reservationType, setReservationType] = useState<'drink-only' | 'dine-and-eat'>('dine-and-eat');
   const [currentImage, setCurrentImage] = useState(0);
   const [guestCount, setGuestCount] = useState('2');
@@ -79,37 +82,22 @@ const ReservationSection = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleCheckAvailability = () => {
     if (!selectedDate || !startTime || !endTime || !guestCount) {
       alert('Please fill in all fields');
       return;
     }
 
-    try {
-      const response = await fetch('/api/reservations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          date: selectedDate,
-          start_time: startTime,
-          end_time: endTime,
-          guest_count: parseInt(guestCount),
-          reservation_type: reservationType,
-        }),
-      });
+    // Pass the reservation details through URL params
+    const params = new URLSearchParams({
+      date: selectedDate,
+      startTime,
+      endTime,
+      guestCount,
+      reservationType,
+    });
 
-      if (!response.ok) {
-        throw new Error('Failed to create reservation');
-      }
-
-      alert('Reservation created successfully!');
-      // Reset form or redirect
-    } catch (error) {
-      alert('Error creating reservation. Please try again.');
-      console.error(error);
-    }
+    router.push(`/seats?${params.toString()}`);
   };
 
   useEffect(() => {
@@ -235,10 +223,10 @@ const ReservationSection = () => {
               </div>
 
               <button 
-                onClick={handleSubmit}
+                onClick={handleCheckAvailability}
                 className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors mt-6"
               >
-                Confirm Reservation
+                Check Availability
               </button>
             </div>
           </div>

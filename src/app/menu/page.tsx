@@ -1,7 +1,13 @@
+// app/menu/page.tsx
+'use client';
+
 import { query } from '@/lib/db';
 import MenuSection from '@/components/menu/MenuSection';
 import CartWrapper from '@/components/menu/CartWrapper';
 import CartSummary from '@/components/menu/CartSummary';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 // Helper function to add category prefix to IDs and image paths
 function addCategoryPrefix(items: any[], prefix: string, imagePrefix: string) {
@@ -18,6 +24,73 @@ function getImageExtension(prefix: string, index: number): string {
   if (prefix === 'sal' && index === 3) return 'png';
   if (prefix === 'mns' && index === 7) return 'avif';
   return 'jpg';
+}
+
+// New ConfirmReservationButton Component
+function ConfirmReservationButton() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const handleConfirm = async () => {
+    setIsConfirming(true);
+    try {
+      const { tokens } = await fetchAuthSession();
+      if (!tokens?.accessToken) {
+        throw new Error('No auth token');
+      }
+
+      const selectedSeats = searchParams.get('selectedSeats')?.split(',') || [];
+      
+      const response = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokens.accessToken.toString()}`
+        },
+        body: JSON.stringify({
+          date: searchParams.get('date'),
+          startTime: searchParams.get('startTime'),
+          endTime: searchParams.get('endTime'),
+          guestCount: parseInt(searchParams.get('guestCount') || '0'),
+          reservationType: searchParams.get('reservationType'),
+          selectedSeats,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create reservation');
+
+      // Redirect to success page or dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error confirming reservation:', error);
+      alert('Failed to confirm reservation. Please try again.');
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
+  // Show reservation details
+  const ReservationDetails = () => (
+    <div className="text-sm text-gray-600">
+      <p>Date: {searchParams.get('date')}</p>
+      <p>Time: {searchParams.get('startTime')} - {searchParams.get('endTime')}</p>
+      <p>Seats: {searchParams.get('selectedSeats')?.split(',').join(', ')}</p>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col items-end gap-2">
+      <ReservationDetails />
+      <button
+        onClick={handleConfirm}
+        disabled={isConfirming}
+        className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+      >
+        {isConfirming ? 'Confirming Reservation...' : 'Confirm Reservation'}
+      </button>
+    </div>
+  );
 }
 
 export default async function Menu() {
@@ -100,15 +173,16 @@ export default async function Menu() {
 
   return (
     <CartWrapper>
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 mb-24">
         {/* Header */}
         <div className="bg-gray-900 text-white p-6 rounded-lg text-center mb-12 shadow-xl">
           <h1 className="text-4xl font-black tracking-tight">Our Menu</h1>
+          <p className="text-gray-300 mt-2">(Optional) Select items to add to your reservation</p>
         </div>
 
         {/* Menu Sections */}
         <div className="space-y-16">
-          {/* 1. House Specialties */}
+          {/* All your existing menu sections */}
           {processedSpecialties.length > 0 && (
             <div className="mb-20">
               <MenuSection 
@@ -119,67 +193,65 @@ export default async function Menu() {
             </div>
           )}
 
-          {/* 2. Salads */}
           <MenuSection 
             title="Salads" 
             items={processedSalads}
             theme={themes.salad}
           />
 
-          {/* 3. Main Courses */}
           <MenuSection 
             title="Main Courses" 
             items={processedMains} 
             theme={themes.main}
           />
 
-          {/* 4. Steaks */}
           <MenuSection 
             title="Steaks" 
             items={processedSteaks} 
             theme={themes.steak}
           />
 
-          {/* 5. Desserts */}
           <MenuSection 
             title="Desserts" 
             items={processedDesserts} 
             theme={themes.dessert}
           />
 
-          {/* 6. Gin & Tonics */}
           <MenuSection 
             title="Gin & Tonics" 
             items={processedGinTonics}
           />
 
-          {/* 7. Champagnes */}
           <MenuSection 
             title="Champagnes & Sparkling" 
             items={processedChampagnes} 
             theme={themes.champagne} 
           />
 
-          {/* 8. Spritzes */}
           <MenuSection 
             title="Spritzes & Cocktails" 
             items={processedSpritzes}
           />
 
-          {/* 10. Starters */}
           <MenuSection 
             title="Starters & Small Plates" 
             items={processedStarters}
           />
 
-          {/* 9. Side Dishes */}
           <MenuSection 
             title="Side Dishes" 
             items={processedSides}
           />
         </div>
       </main>
-      <CartSummary />
+
+      {/* Fixed bottom bar for cart and confirmation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t p-4 z-50">
+        <div className="container mx-auto flex justify-between items-center">
+          <CartSummary />
+          <ConfirmReservationButton />
+        </div>
+      </div>
     </CartWrapper>
   );
 }
