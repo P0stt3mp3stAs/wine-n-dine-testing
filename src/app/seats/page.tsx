@@ -13,7 +13,22 @@ export default function SeatsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [availableSeats, setAvailableSeats] = useState<string[]>([]);
-  const [modelLoading, setModelLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+   // Loading screen effect
+   useEffect(() => {
+    document.body.style.overflow = 'hidden'; // Prevent scrolling during loading
+    
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      document.body.style.overflow = 'auto'; // Re-enable scrolling
+    }, 10000);
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   // Get reservation details once
   const reservationType = searchParams.get('reservationType');
@@ -74,20 +89,16 @@ export default function SeatsPage() {
     router.push(`/seats/confirm?${params.toString()}`);
   };
 
-  // Loading screen with animation
-  // if (modelLoading) {
-  //   return (
-  //     <div className="fixed inset-0 bg-black flex items-center justify-center">
-  //       <div className="text-center">
-  //         <div className="w-32 h-32 border-t-4 border-b-4 border-green-500 rounded-full animate-spin mb-4"></div>
-  //         <h2 className="text-white text-xl font-semibold">
-  //           Loading 3D environment...
-  //         </h2>
-  //         <p className="text-gray-400 mt-2">Please wait a moment</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white mb-4"></div>
+          <h2 className="text-white text-xl font-semibold">Loading Wine and Dine Experience...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="h-screen flex flex-col relative">
@@ -145,7 +156,6 @@ export default function SeatsPage() {
         <ModelViewer 
           availableSeats={availableSeats} 
           onSeatSelect={handleSeatSelect}
-          onLoadingChange={setModelLoading}
         />
       </div>
     </main>

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useProfile } from '@/hooks/useProfile';
-import { getUserReservations } from '@/actions/reservations';
+import { getUserReservations, cancelReservation } from '@/actions/reservations';
 // import UserReservations from '@/components/UserReservations';
 
 interface Reservation {
@@ -119,15 +119,48 @@ export default function Profile() {
 
         {/* Reservations Section */}
         <div className="bg-white rounded-lg shadow p-6">
-          <p>User ID: {userInfo?.user_id || 'Not available'}</p>
-          <div className="reservations-section">
-            <h2>Your Reservations</h2>
+          <h2 className="text-2xl font-bold mb-4">Your Reservations</h2>
+          <div className="space-y-4">
             {reservations.map((reservation) => (
-              <div key={reservation.id} className="reservation-card">
-                <p>Date: {new Date(reservation.reservation_date).toLocaleDateString()}</p>
-                <p>Time: {reservation.start_time} - {reservation.end_time}</p>
-                <p>Guests: {reservation.guest_count}</p>
-                <p>Type: {reservation.reservation_type}</p>
+              <div 
+                key={reservation.id} 
+                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex space-x-8">
+                  <div>
+                    <span className="text-sm text-gray-500">Date</span>
+                    <p className="font-medium">
+                      {new Date(reservation.reservation_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Time</span>
+                    <p className="font-medium">
+                      {reservation.start_time} - {reservation.end_time}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Guests</span>
+                    <p className="font-medium">{reservation.guest_count}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-gray-500">Type</span>
+                    <p className="font-medium">{reservation.reservation_type}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={async () => {
+                    const result = await cancelReservation(reservation.id);
+                    if (result.success) {
+                      setReservations(prevReservations => 
+                        prevReservations.filter(res => res.id !== reservation.id)
+                      );
+                    }
+                  }}
+                  className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                >
+                  Cancel Reservation
+                </button>
               </div>
             ))}
           </div>

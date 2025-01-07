@@ -1,21 +1,6 @@
 // lib/db.ts
+
 import { Pool } from 'pg';
-
-
-
-import { PrismaClient } from '@prisma/client';
-
-declare global {
-  var prisma: PrismaClient | undefined;
-}
-
-export const prisma = global.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  global.prisma = prisma;
-}
-
-
 
 let pool: Pool;
 
@@ -54,13 +39,14 @@ export async function checkSeatAvailability(
   date: string,
   startTime: string,
   endTime: string,
+  // reservation_state: boolean,
   reservationType: 'drink-only' | 'dine-and-eat'
 ) {
   const text = `
     SELECT seat_id 
     FROM seat_reservations 
-    WHERE 
-      reservation_date = $1 
+    WHERE reservation_state = true
+      AND (reservation_date = $1)
       AND (
         (start_time, end_time) OVERLAPS ($2::time, $3::time)
       )

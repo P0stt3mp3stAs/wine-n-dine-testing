@@ -24,9 +24,6 @@ const SEATS_CONFIG: Record<string, SeatConfig> = {
 
 export async function POST(request: Request) {
   try {
-    // Skip auth for availability check as it's just checking what's available
-    // if we needed auth we'd do it here
-
     // Parse request body
     const body = await request.json();
     const { 
@@ -35,7 +32,7 @@ export async function POST(request: Request) {
       endTime, 
       guestCount, 
       reservationType,
-      selectedSeats = [] // Previously selected seats to exclude
+      selectedSeats = []
     } = body;
 
     // Validate required fields
@@ -65,6 +62,11 @@ export async function POST(request: Request) {
       .filter(([seatId, config]) => {
         // Check if seat is not reserved
         if (reservedSeatIds.has(seatId)) return false;
+
+        // For stools, only make them available if guest count is 2 or less
+        if (seatId.startsWith('stool')) {
+          return parseInt(guestCount) <= 2;
+        }
 
         // Check capacity
         if (config.capacity < parseInt(guestCount)) return false;
