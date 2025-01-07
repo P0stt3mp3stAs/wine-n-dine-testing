@@ -10,8 +10,11 @@
     "optimize-model": "node scripts/optimize-model.js"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.7.4",
     "@aws-amplify/auth": "^6.0.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.696.0",
+    "@aws-sdk/client-dynamodb": "^3.724.0",
+    "@aws-sdk/lib-dynamodb": "^3.724.0",
     "@prisma/client": "^6.1.0",
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "^8.17.10",

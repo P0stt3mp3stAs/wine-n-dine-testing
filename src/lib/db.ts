@@ -1,5 +1,4 @@
 // lib/db.ts
-
 import { Pool } from 'pg';
 
 let pool: Pool;
