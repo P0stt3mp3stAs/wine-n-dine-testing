@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: true,
+  },
   images: {
     domains: ['my-app-user-profiles.s3.us-east-1.amazonaws.com'],
   },

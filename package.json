@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-amplify/auth": "^6.0.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.696.0",
+    "@prisma/client": "^6.1.0",
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "^8.17.10",
     "@react-three/rapier": "^1.5.0",
@@ -20,6 +21,7 @@
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-amplify": "^6.12.0",
     "aws-jwt-verify": "^4.0.1",
+    "bcrypt": "^5.1.1",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
@@ -33,6 +35,7 @@
     "three": "^0.169.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/pg": "^8.11.10",
