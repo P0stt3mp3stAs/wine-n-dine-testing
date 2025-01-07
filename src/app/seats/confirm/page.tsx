@@ -2,83 +2,126 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { getCurrentUser } from '@/utils/auth';
 
-export default function ConfirmSeatsPage() {
+interface ApiError {
+  message: string;
+}
+
+export default function ConfirmPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [username, setUsername] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Get all params from URL
+  const selectedSeat = searchParams.get('selectedSeat') || '1';
+  const date = searchParams.get('date');
+  const startTime = searchParams.get('startTime');
+  const endTime = searchParams.get('endTime');
+  const guestCount = searchParams.get('guestCount');
+  const reservationType = searchParams.get('reservationType');
 
   useEffect(() => {
-    // Get current selected seat and add it to the array
-    const currentSeat = searchParams.get('selectedSeat');
-    if (currentSeat && !selectedSeats.includes(currentSeat)) {
-      setSelectedSeats(prev => [...prev, currentSeat]);
+    const getUserData = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setUsername(user.username || '');
+          setUserId(user.id || '1');
+        }
+      } catch (error) {
+        console.error('Error getting user data:', error);
+      }
+    };
+
+    getUserData();
+  }, []);
+
+  const handleProceedToMenu = async () => {
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          selectedSeat,
+          date,
+          startTime,
+          endTime,
+          guestCount,
+          reservationType
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to create reservation');
+      }
+
+      // router.push('/menu');
+      // router.refresh();
+       // Or alternatively:
+       window.location.href = '/menu';
+
+    } catch (error) {
+      console.error('Error:', error);
+      // Type guard to handle the error properly
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      alert('Failed to create reservation: ' + errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-  }, [searchParams]);
-
-  const handleAddAnotherSeat = () => {
-    // Preserve all current params and add selected seats
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete('selectedSeat'); // Remove single seat parameter
-    params.set('selectedSeats', selectedSeats.join(',')); // Add all selected seats
-    router.push(`/seats?${params.toString()}`);
-  };
-
-  const handleProceedToMenu = () => {
-    // Create params for menu page including all selections
-    const params = new URLSearchParams();
-    params.set('date', searchParams.get('date') || '');
-    params.set('startTime', searchParams.get('startTime') || '');
-    params.set('endTime', searchParams.get('endTime') || '');
-    params.set('guestCount', searchParams.get('guestCount') || '');
-    params.set('reservationType', searchParams.get('reservationType') || '');
-    params.set('selectedSeats', selectedSeats.join(','));
-    
-    router.push(`/menu?${params.toString()}`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold mb-6">Selected Seats</h1>
-        
-        <div className="space-y-4 mb-8">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h2 className="font-semibold mb-2">Reservation Details:</h2>
-            <p><strong>Date:</strong> {searchParams.get('date')}</p>
-            <p><strong>Time:</strong> {searchParams.get('startTime')} - {searchParams.get('endTime')}</p>
-            <p><strong>Guests:</strong> {searchParams.get('guestCount')}</p>
-            <p><strong>Type:</strong> {searchParams.get('reservationType')}</p>
-          </div>
+    <div className="p-6 max-w-2xl mx-auto mt-10 text-black">
+      <h2 className="text-2xl font-bold mb-6">Reservation Details</h2>
+      
+      <div className="space-y-4 bg-gray-50 p-6 rounded-lg shadow">
+        <div className="grid grid-cols-2 gap-2">
+          <span className="font-semibold">Username:</span>
+          <span>{username || 'Loading...'}</span>
 
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h2 className="font-semibold mb-2">Selected Seats:</h2>
-            <ul className="list-disc list-inside">
-              {selectedSeats.map((seat, index) => (
-                <li key={seat}>
-                  {seat} {index === 0 ? '(Primary)' : '(Additional)'}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+          <span className="font-semibold">User ID:</span>
+          <span>{userId || 'Loading...'}</span>
 
-        <div className="flex gap-4">
-          <button
-            onClick={handleAddAnotherSeat}
-            className="flex-1 bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition-colors"
-          >
-            Add Another Seat
-          </button>
-          
-          <button
-            onClick={handleProceedToMenu}
-            className="flex-1 bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
-          >
-            Proceed to Menu
-          </button>
+          <span className="font-semibold">Seat ID:</span>
+          <span>{selectedSeat || 'Not selected'}</span>
+
+          <span className="font-semibold">Date:</span>
+          <span>{date || 'Not set'}</span>
+
+          <span className="font-semibold">Start Time:</span>
+          <span>{startTime || 'Not set'}</span>
+
+          <span className="font-semibold">End Time:</span>
+          <span>{endTime || 'Not set'}</span>
+
+          <span className="font-semibold">Guest Count:</span>
+          <span>{guestCount || '0'}</span>
+
+          <span className="font-semibold">Type:</span>
+          <span>{reservationType || 'Not set'}</span>
         </div>
+      </div>
+
+      <div className="mt-6">
+      <button 
+          className={`bg-blue-500 text-white px-4 py-2 rounded 
+            ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
+          onClick={handleProceedToMenu}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Processing...' : 'Confirm Reservation'}
+        </button>
       </div>
     </div>
   );

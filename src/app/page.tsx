@@ -20,8 +20,13 @@ export default async function Home() {
       </div>
       <div className="flex justify-center items-center my-10">
         <Link legacyBehavior href="/dashboard">
-          <a className="bg-red-600 text-white font-bold py-4 px-8 text-xl rounded-lg shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105">
+          <a className="bg-red-600 text-white font-bold py-4 px-8 text-xl rounded-lg shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 m-5">
             Go to Dashboard
+          </a>
+        </Link>
+        <Link legacyBehavior href="/profile">
+          <a className="bg-red-600 text-white font-bold py-4 px-8 text-xl rounded-lg shadow-lg hover:bg-red-700 transition-transform transform hover:scale-105 m-5">
+            Go to Profile
           </a>
         </Link>
       </div>

@@ -29,7 +29,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 text-black">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow">
         <div className="p-6 space-y-8">
           <div className="text-center">
