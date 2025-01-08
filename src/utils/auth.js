@@ -1,52 +1,28 @@
-// src/utils/auth.js
-import { Amplify } from 'aws-amplify';
-import { 
-  CognitoUserPool, 
-  CognitoUser, 
-  AuthenticationDetails,
-  CognitoUserAttribute
-} from 'amazon-cognito-identity-js';
-
-// Configure Amplify
-const amplifyConfig = {
-  Auth: {
-    Cognito: {
-      userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID || '',
-      userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID || '',
-      region: process.env.NEXT_PUBLIC_AWS_REGION || ''
-    }
-  }
-};
-
-Amplify.configure(amplifyConfig, {
-  ssr: true
-});
+import { CognitoUserPool, CognitoUser, AuthenticationDetails } from 'amazon-cognito-identity-js';
 
 const poolConfig = {
-  UserPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID || '',
-  ClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID || ''
+  UserPoolId: 'us-east-1_daJbUvWzH',
+  ClientId: '5hlt0jspd175jnj3j8rf9hf2t2'
 };
 
 const userPool = new CognitoUserPool(poolConfig);
 
 export const signUp = async (email, password, username) => {
   return new Promise((resolve, reject) => {
-    const attributeList = [
-      new CognitoUserAttribute({ Name: 'email', Value: email }),
-      new CognitoUserAttribute({ Name: 'preferred_username', Value: username })
-    ];
-
     userPool.signUp(
       email,
       password,
-      attributeList,
-      [],
+      [
+        { Name: 'email', Value: email },
+        { Name: 'preferred_username', Value: username }
+      ],
+      null,
       (err, result) => {
         if (err) {
           reject(err);
           return;
         }
-        resolve(result?.user);
+        resolve(result.user);
       }
     );
   });
@@ -83,18 +59,9 @@ export const signIn = async (email, password) => {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: (result) => {
-        const tokens = {
-          accessToken: result.getAccessToken().getJwtToken(),
-          idToken: result.getIdToken().getJwtToken(),
-          refreshToken: result.getRefreshToken().getToken()
-        };
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('accessToken', tokens.accessToken);
-          localStorage.setItem('idToken', tokens.idToken);
-          localStorage.setItem('refreshToken', tokens.refreshToken);
-        }
-        
+        localStorage.setItem('accessToken', result.getAccessToken().getJwtToken());
+        localStorage.setItem('idToken', result.getIdToken().getJwtToken());
+        localStorage.setItem('refreshToken', result.getRefreshToken().getToken());
         resolve(result);
       },
       onFailure: (err) => {
@@ -129,14 +96,7 @@ export const getCurrentUser = () => {
           reject(err);
           return;
         }
-        
-        if (!attributes) {
-          resolve(null);
-          return;
-        }
-
         resolve({
-          id: attributes.find(attr => attr.Name === 'sub')?.Value,
           email: attributes.find(attr => attr.Name === 'email')?.Value,
           username: attributes.find(attr => attr.Name === 'preferred_username')?.Value,
           isVerified: session.isValid()
@@ -150,14 +110,11 @@ export const signOut = () => {
   const cognitoUser = userPool.getCurrentUser();
   if (cognitoUser) {
     cognitoUser.signOut();
-    if (typeof window !== 'undefined') {
-      localStorage.clear();
-    }
+    localStorage.clear();
   }
 };
 
 export const isAuthenticated = () => {
-  if (typeof window === 'undefined') return false;
   return localStorage.getItem('accessToken') !== null;
 };
 
@@ -175,6 +132,3 @@ export const checkUsernameAvailability = async (username) => {
     });
   });
 };
-
-// Export getCurrentUser from Amplify for server-side use
-export { getCurrentUser as getServerUser } from 'aws-amplify/auth';

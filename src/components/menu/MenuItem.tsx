@@ -10,7 +10,7 @@ type MenuItemProps = {
   description: string;
   price: number | string;
   unit?: string;
-  image?: string;
+  imagePath?: string;
   theme?: {
     backgroundColor?: string;
     titleColor?: string;
@@ -19,9 +19,7 @@ type MenuItemProps = {
   };
 };
 
-const MenuItem = ({ id, name, description, price, unit, image, theme }: MenuItemProps) => {
-  // console.log('MenuItem props:', { id, name, description, price, image, unit }); // Debug log
-  
+const MenuItem = ({ id, name, description, price, unit, imagePath, theme }: MenuItemProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const { items, addItem, removeItem } = useCart();
   
@@ -41,10 +39,10 @@ const MenuItem = ({ id, name, description, price, unit, image, theme }: MenuItem
 
   return (
     <div className={`${theme?.backgroundColor || 'bg-white'} rounded-lg shadow-md p-4 transition-all duration-200`}>
-      {image && (
+      {imagePath && (
         <div className="relative w-full h-48 mb-4">
           <Image
-            src={image}
+            src={`/menu/${imagePath}`}
             alt={name}
             fill
             className="rounded-lg object-cover"
@@ -89,7 +87,7 @@ const MenuItem = ({ id, name, description, price, unit, image, theme }: MenuItem
         </p>
       )}
       <p className={`text-lg font-medium ${theme?.priceColor || 'text-gray-800'}`}>
-        ${typeof price === 'number' ? price.toFixed(2) : price}{unit ? ` ${unit}` : ''}
+        ${price}{unit ? ` ${unit}` : ''}
       </p>
     </div>
   );
