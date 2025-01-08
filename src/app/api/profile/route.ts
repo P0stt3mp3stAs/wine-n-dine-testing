@@ -1,24 +1,28 @@
-// src/app/api/profile/route.ts
 import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/utils/auth';
+import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    // Instead of using Amplify directly, get the session from cookies
+    const cookieStore = cookies();
+    const session = cookieStore.get('amplify-signin-with-hostedUI');
+
+    if (!session) {
+      return NextResponse.json(
+        { error: 'Not authenticated' },
+        { status: 401 }
+      );
     }
 
+    // Return a basic response for now to test the build
     return NextResponse.json({
-      name: user.username,
-      email: user.email
+      status: 'authenticated'
     });
 
   } catch (error) {
     console.error('Profile error:', error);
     return NextResponse.json(
-      { error: 'Failed to load profile' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
