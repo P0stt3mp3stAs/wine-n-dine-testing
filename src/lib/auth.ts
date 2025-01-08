@@ -1,37 +1,24 @@
 import { Amplify } from 'aws-amplify';
-
-// Define the configuration type
-type AmplifyConfig = {
-  Auth: {
-    Cognito: {
-      userPoolId: string;
-      userPoolClientId: string;
-    }
-  }
-};
-
-// Create the configuration object
-const amplifyConfig: AmplifyConfig = {
-  Auth: {
-    Cognito: {
-      userPoolId: process.env.NEXT_PUBLIC_USER_POOL_ID ?? '',
-      userPoolClientId: process.env.NEXT_PUBLIC_USER_POOL_CLIENT_ID ?? ''
-    }
-  }
-};
+import { getAmplifyConfig } from '../utils/auth-config';
+// or if you prefer using absolute paths, make sure your tsconfig.json has the proper path aliases
 
 // Only configure Amplify on the client side
 if (typeof window !== 'undefined') {
-  if (amplifyConfig.Auth.Cognito.userPoolId && amplifyConfig.Auth.Cognito.userPoolClientId) {
-    try {
-      Amplify.configure(amplifyConfig);
-    } catch (error) {
-      console.error('Error configuring Amplify:', error);
-    }
-  } else {
-    console.warn('Missing Amplify configuration values');
+  const config = getAmplifyConfig();
+  const { userPoolId, userPoolClientId } = config.Auth.Cognito;
+  if (userPoolId && userPoolClientId) {
+    Amplify.configure({
+      ...config,
+      Auth: {
+        ...config.Auth,
+        Cognito: {
+          ...config.Auth.Cognito,
+          userPoolId,
+          userPoolClientId
+        }
+      }
+    });
   }
 }
 
-// Export what you need from aws-amplify
-export { getCurrentUser, signIn, signOut } from 'aws-amplify/auth';
+export { getCurrentUser } from 'aws-amplify/auth';
